@@ -47,34 +47,35 @@ curl -X POST [http://127.0.0.1:8000/api/predict/](http://127.0.0.1:8000/api/pred
     "loan_intent_PERSONAL": 1,
     "loan_grade_C": 1
 }'
-
+```
 **Example Response:**
-
+```bash
 {
     "status": "success",
     "risk_score": 38.49,
     "decision": "APPROVED"
 }
+```
 
 **🛠️ How to Run Locally**
 
 1. Clone the repository
-
+```bash
 git clone [https://github.com/vinay98485/credit-risk-engine.git](https://github.com/vinay98485/credit-risk-engine.git)
 cd credit-risk-engine
-
+```
 2. Set up a virtual environment and install dependencies
-
+```bash
 python -m venv venv
 source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
-
+```
 3. Run the Django Server
-
+```bash
 python manage.py runserver
-
+```
 4. Launch the Interface
-Open index.html directly in your web browser to access the dynamic frontend.
+Open ``` index.html``` directly in your web browser to access the dynamic frontend.
 
 
 **👨‍💻 Author**
