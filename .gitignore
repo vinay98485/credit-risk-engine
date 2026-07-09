@@ -1,0 +1,11 @@
+# Virtual Environment
+myvenv/
+venv/
+
+# Python & Django
+__pycache__/
+*.pyc
+db.sqlite3
+
+# Mac System Files
+.DS_Store

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Loan Approval Engine</title>
+    <!-- We are using Tailwind CSS via CDN for instant, professional styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-white rounded-xl shadow-xl p-8 max-w-md w-full">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">Loan Risk Analyzer</h1>
+
+        <!-- The Form: Where the user types their data -->
+        <form id="loanForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Age</label>
+                <input type="number" id="age" value="25"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Annual Income ($)</label>
+                <input type="number" id="income" value="45000"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Home Ownership</label>
+                <select id="home_ownership" class="mt-1 block w-full rounded-md border-gray-300 p-2 border">
+                    <option value="RENT">Rent</option>
+                    <option value="OWN">Own</option>
+                    <option value="MORTGAGE">Mortgage</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Loan Amount Requested ($)</label>
+                <input type="number" id="loan_amnt" value="15000"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border" required>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">
+                Analyze Risk
+            </button>
+        </form>
+
+        <!-- The Result Box: Hidden until the API replies -->
+        <div id="resultBox" class="mt-6 hidden p-4 rounded-lg text-center">
+            <h2 id="decisionText" class="text-xl font-bold"></h2>
+            <p id="scoreText" class="text-gray-700 mt-2"></p>
+        </div>
+    </div>
+
+    <!-- The JavaScript: The bridge between this page and your Django API -->
+    <script>
+        document.getElementById('loanForm').addEventListener('submit', async function (e) {
+            e.preventDefault(); // Stop the page from reloading
+
+            // 1. Gather the data from the form
+            const income = parseFloat(document.getElementById('income').value);
+            const loanAmnt = parseFloat(document.getElementById('loan_amnt').value);
+
+            // Calculate the debt-to-income ratio (the most important feature!)
+            const percentIncome = parseFloat((loanAmnt / income).toFixed(2));
+            const homeOwnership = document.getElementById('home_ownership').value;
+
+            // 2. Package it into the exact JSON format the Django API expects
+            const payload = {
+                "person_age": parseInt(document.getElementById('age').value),
+                "person_home_ownership_RENT": homeOwnership === 'RENT' ? 1 : 0,
+                "person_home_ownership_OWN": homeOwnership === 'OWN' ? 1 : 0,
+                "person_income": income,
+                "person_emp_length": 3.0,
+                "loan_amnt": loanAmnt,
+                "loan_int_rate": 13.5,
+                "loan_percent_income": percentIncome,
+                "cb_person_cred_hist_length": 4,
+                "loan_intent_PERSONAL": 1,
+                "loan_grade_C": 1
+            };
+
+            try {
+                // 3. Send the data to your Django API
+                const response = await fetch('http://127.0.0.1:8000/api/predict/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                // 4. Update the screen based on the API's answer
+                const resultBox = document.getElementById('resultBox');
+                const decisionText = document.getElementById('decisionText');
+                const scoreText = document.getElementById('scoreText');
+
+                resultBox.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
+
+                if (data.decision === 'APPROVED') {
+                    resultBox.classList.add('bg-green-100');
+                    decisionText.className = 'text-xl font-bold text-green-700';
+                    decisionText.innerText = '✅ LOAN APPROVED';
+                } else {
+                    resultBox.classList.add('bg-red-100');
+                    decisionText.className = 'text-xl font-bold text-red-700';
+                    decisionText.innerText = '❌ LOAN DENIED';
+                }
+
+                scoreText.innerText = `AI Default Risk Score: ${data.risk_score}%`;
+
+            } catch (error) {
+                alert("Error connecting to the API. Is your Django server running?");
+            }
+        });
+    </script>
+</body>
+
+</html>
