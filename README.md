@@ -61,7 +61,7 @@ curl -X POST [http://127.0.0.1:8000/api/predict/](http://127.0.0.1:8000/api/pred
 
 1. Clone the repository
 ```bash
-git clone [https://github.com/vinay98485/credit-risk-engine.git](https://github.com/vinay98485/credit-risk-engine.git)
+git clone https://github.com/vinay98485/credit-risk-engine.git
 cd credit-risk-engine
 ```
 2. Set up a virtual environment and install dependencies
